@@ -1,0 +1,28 @@
+monolog:
+    channels:
+        - deprecation
+
+    handlers:
+        main:
+            type: stream
+            path: '%kernel.logs_dir%/%kernel.environment%.log'
+            level: debug
+            channels: ['!event']
+
+        logstash:
+            type: socket
+            connection_string: 'tcp://logstash:5000'
+            level: info
+            formatter: monolog.formatter.json
+            channels: ['!event']
+
+        console:
+            type: console
+            process_psr_3_messages: false
+            channels: ['!event', '!doctrine']
+
+        deprecation:
+            type: stream
+            channels: [deprecation]
+            path: php://stderr
+            formatter: monolog.formatter.json

@@ -1,0 +1,105 @@
+graph TB
+    subgraph Clients["Clients"]
+        WEB["Web App / SPA"]
+        MOBILE["Mobile App"]
+        SVC["Other Microservices"]
+    end
+
+    subgraph AUTH["Auth Service (Symfony 7 / PHP 8.3+)"]
+        direction TB
+
+        subgraph Controllers["Controllers"]
+            REG_C["RegisterController<br/>POST /api/auth/register"]
+            LOGIN_C["LoginController<br/>POST /api/auth/login"]
+            LOGOUT_C["LogoutController<br/>POST /api/auth/logout"]
+            REFRESH_C["RefreshController<br/>POST /api/auth/refresh"]
+            PROFILE_C["ProfileController<br/>GET /api/auth/profile"]
+            HEALTH_C["HealthController<br/>GET /health/auth"]
+            METRICS_C["MetricsController<br/>GET /metrics"]
+        end
+
+        subgraph Middleware["Middleware & Listeners"]
+            JWT_MW["JWT Validation<br/>Middleware"]
+            EXC_L["Exception<br/>Listener"]
+            AUTH_M["Auth Metrics<br/>Listener"]
+            HTTP_M["HTTP Metrics<br/>Listener"]
+            LOGIN_L["Login Success<br/>Listener"]
+        end
+
+        subgraph Services["Service Layer (Contract-Based)"]
+            REG_S["RegistrationService"]
+            LOGIN_S["LoginService"]
+            TOKEN_S["TokenService"]
+            JWT_S["JwtTokenService"]
+            HASH_S["PasswordHasherService<br/>(Argon2)"]
+        end
+    end
+
+    subgraph Data["Data Stores"]
+        PG[("PostgreSQL 16<br/>users &<br/>refresh_tokens")]
+    end
+
+    subgraph Messaging["Event Bus"]
+        RMQ["RabbitMQ<br/>fanout exchange: messages"]
+    end
+
+    subgraph Events["Domain Events"]
+        E1["UserRegistered<br/>userId, email,<br/>firstName, lastName"]
+        E2["UserLoggedIn<br/>userId, email,<br/>ipAddress, userAgent"]
+    end
+
+    subgraph Monitoring["Observability"]
+        PROM["Prometheus<br/>Metrics"]
+        SENTRY["Sentry<br/>Error Tracking"]
+    end
+
+    subgraph Downstream["Downstream Consumer"]
+        NOTIF["Notification Service<br/>queue: notification_messages"]
+    end
+
+    WEB & MOBILE & SVC -->|"HTTP / JSON"| JWT_MW
+    JWT_MW --> Controllers
+
+    REG_C --> REG_S
+    LOGIN_C --> LOGIN_S
+    LOGOUT_C --> TOKEN_S
+    REFRESH_C --> TOKEN_S
+    PROFILE_C -.->|"reads user"| PG
+
+    REG_S --> HASH_S
+    REG_S --> PG
+    LOGIN_S --> HASH_S
+    LOGIN_S --> JWT_S
+    TOKEN_S --> JWT_S
+
+    JWT_S -->|"store/revoke<br/>refresh tokens"| PG
+    JWT_S -->|"RS256 sign"| JWT_MW
+
+    REG_S -->|"publish"| E1
+    LOGIN_L -->|"publish"| E2
+    E1 & E2 --> RMQ
+
+    RMQ -->|"subscribe"| NOTIF
+
+    AUTH_M & HTTP_M --> PROM
+    EXC_L --> SENTRY
+    HEALTH_C -->|"check"| PG
+    HEALTH_C -->|"check"| RMQ
+
+    classDef client fill:#4A90D9,stroke:#2C5F8A,color:#fff
+    classDef controller fill:#5BA85B,stroke:#3D7A3D,color:#fff
+    classDef middleware fill:#E8A838,stroke:#B8822A,color:#fff
+    classDef service fill:#9B59B6,stroke:#7D3C98,color:#fff
+    classDef data fill:#E74C3C,stroke:#C0392B,color:#fff
+    classDef event fill:#1ABC9C,stroke:#16A085,color:#fff
+    classDef monitor fill:#95A5A6,stroke:#7F8C8D,color:#fff
+    classDef downstream fill:#F39C12,stroke:#D68910,color:#fff
+
+    class WEB,MOBILE,SVC client
+    class REG_C,LOGIN_C,LOGOUT_C,REFRESH_C,PROFILE_C,HEALTH_C,METRICS_C controller
+    class JWT_MW,EXC_L,AUTH_M,HTTP_M,LOGIN_L middleware
+    class REG_S,LOGIN_S,TOKEN_S,JWT_S,HASH_S service
+    class PG data
+    class E1,E2,RMQ event
+    class PROM,SENTRY monitor
+    class NOTIF downstream

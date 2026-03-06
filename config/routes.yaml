@@ -1,0 +1,13 @@
+api_auth:
+    resource: routes/api.yaml
+    prefix: /api/auth
+
+metrics:
+    path: /metrics
+    controller: App\Controller\MetricsController
+    methods: [GET]
+
+health:
+    path: /health/auth
+    controller: App\Controller\HealthController
+    methods: [GET]

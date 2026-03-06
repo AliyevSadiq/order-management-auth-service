@@ -1,0 +1,65 @@
+parameters:
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+            - '../src/DTO/'
+            - '../src/Message/'
+
+    App\Controller\:
+        resource: '../src/Controller/'
+        tags: ['controller.service_arguments']
+
+    App\EventListener\ExceptionListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception, method: onKernelException }
+
+    App\EventListener\HttpMetricsListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }
+            - { name: kernel.event_listener, event: kernel.terminate, method: onKernelTerminate }
+
+    App\EventListener\AuthMetricsListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.terminate, method: onKernelTerminate }
+
+    App\EventListener\LoginSuccessListener:
+        tags:
+            - { name: kernel.event_listener, event: lexik_jwt_authentication.on_authentication_success, method: onAuthenticationSuccess }
+
+    App\Contract\MetricsRegistryInterface:
+        class: App\Metrics\PrometheusMetricsRegistry
+
+    App\Contract\PasswordHasherServiceInterface:
+        class: App\Service\PasswordHasherService
+
+    App\Contract\JwtTokenServiceInterface:
+        class: App\Service\JwtTokenService
+
+    App\Contract\RegistrationServiceInterface:
+        class: App\Service\RegistrationService
+
+    App\Contract\LoginServiceInterface:
+        class: App\Service\LoginService
+
+    App\Contract\TokenServiceInterface:
+        class: App\Service\TokenService
+
+    App\Service\HealthCheckService:
+        arguments:
+            $redisUrl: '%env(REDIS_URL)%'
+            $messengerTransportDsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+            $jwtSecretKey: '%env(resolve:JWT_SECRET_KEY)%'
+            $jwtPublicKey: '%env(resolve:JWT_PUBLIC_KEY)%'
+
+    App\Logger\ServiceNameProcessor:
+        tags:
+            - { name: monolog.processor }
