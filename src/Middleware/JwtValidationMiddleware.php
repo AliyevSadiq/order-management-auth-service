@@ -12,9 +12,9 @@ use Symfony\Component\HttpKernel\KernelEvents;
 final readonly class JwtValidationMiddleware implements EventSubscriberInterface
 {
     private const array PUBLIC_ROUTES = [
-        '/api/auth/register',
-        '/api/auth/login',
-        '/api/auth/refresh',
+        '/api/v1/auth/register',
+        '/api/v1/auth/login',
+        '/api/v1/auth/refresh',
         '/api/doc',
     ];
 

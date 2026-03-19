@@ -5,15 +5,15 @@ graph TB
         SVC["Other Microservices"]
     end
 
-    subgraph AUTH["Auth Service (Symfony 7 / PHP 8.3+)"]
+    subgraph AUTH["Auth Service (Symfony 7 / PHP 8.4)"]
         direction TB
 
         subgraph Controllers["Controllers"]
-            REG_C["RegisterController<br/>POST /api/auth/register"]
-            LOGIN_C["LoginController<br/>POST /api/auth/login"]
-            LOGOUT_C["LogoutController<br/>POST /api/auth/logout"]
-            REFRESH_C["RefreshController<br/>POST /api/auth/refresh"]
-            PROFILE_C["ProfileController<br/>GET /api/auth/profile"]
+            REG_C["RegisterController<br/>POST /api/v1/auth/register"]
+            LOGIN_C["LoginController<br/>POST /api/v1/auth/login"]
+            LOGOUT_C["LogoutController<br/>POST /api/v1/auth/logout"]
+            REFRESH_C["RefreshController<br/>POST /api/v1/auth/refresh"]
+            PROFILE_C["ProfileController<br/>GET /api/v1/auth/profile"]
             HEALTH_C["HealthController<br/>GET /health/auth"]
             METRICS_C["MetricsController<br/>GET /metrics"]
         end
@@ -24,6 +24,9 @@ graph TB
             AUTH_M["Auth Metrics<br/>Listener"]
             HTTP_M["HTTP Metrics<br/>Listener"]
             LOGIN_L["Login Success<br/>Listener"]
+            TRACE_L["TracingListener<br/>start span"]
+            TRACE_F["TracingFinishListener<br/>finish span"]
+            TRACE_R["TracingResponseListener<br/>propagate headers"]
         end
 
         subgraph Services["Service Layer (Contract-Based)"]
@@ -40,7 +43,7 @@ graph TB
     end
 
     subgraph Messaging["Event Bus"]
-        RMQ["RabbitMQ<br/>fanout exchange: messages"]
+        RMQ["RabbitMQ<br/>topic exchange: messages"]
     end
 
     subgraph Events["Domain Events"]
@@ -51,6 +54,7 @@ graph TB
     subgraph Monitoring["Observability"]
         PROM["Prometheus<br/>Metrics"]
         SENTRY["Sentry<br/>Error Tracking"]
+        JAEGER["Jaeger<br/>Distributed Tracing"]
     end
 
     subgraph Downstream["Downstream Consumer"]
@@ -83,6 +87,7 @@ graph TB
 
     AUTH_M & HTTP_M --> PROM
     EXC_L --> SENTRY
+    TRACE_L & TRACE_F -->|"spans"| JAEGER
     HEALTH_C -->|"check"| PG
     HEALTH_C -->|"check"| RMQ
 
@@ -97,9 +102,9 @@ graph TB
 
     class WEB,MOBILE,SVC client
     class REG_C,LOGIN_C,LOGOUT_C,REFRESH_C,PROFILE_C,HEALTH_C,METRICS_C controller
-    class JWT_MW,EXC_L,AUTH_M,HTTP_M,LOGIN_L middleware
+    class JWT_MW,EXC_L,AUTH_M,HTTP_M,LOGIN_L,TRACE_L,TRACE_F,TRACE_R middleware
     class REG_S,LOGIN_S,TOKEN_S,JWT_S,HASH_S service
     class PG data
     class E1,E2,RMQ event
-    class PROM,SENTRY monitor
+    class PROM,SENTRY,JAEGER monitor
     class NOTIF downstream

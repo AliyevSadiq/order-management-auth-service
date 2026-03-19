@@ -14,7 +14,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[OA\Tag(name: 'Authentication')]
-#[Route('/api/auth')]
 final class LoginController extends AbstractController
 {
     public function __construct(
@@ -24,7 +23,7 @@ final class LoginController extends AbstractController
     }
 
     #[OA\Post(
-        path: '/api/auth/login',
+        path: '/api/v1/auth/login',
         summary: 'Authenticate user and get JWT tokens',
         requestBody: new OA\RequestBody(
             required: true,

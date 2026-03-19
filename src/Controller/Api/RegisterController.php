@@ -15,7 +15,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[OA\Tag(name: 'Authentication')]
-#[Route('/api/auth')]
 final class RegisterController extends AbstractController
 {
     public function __construct(
@@ -25,7 +24,7 @@ final class RegisterController extends AbstractController
     }
 
     #[OA\Post(
-        path: '/api/auth/register',
+        path: '/api/v1/auth/register',
         summary: 'Register a new user',
         requestBody: new OA\RequestBody(
             required: true,

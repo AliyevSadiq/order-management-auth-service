@@ -13,11 +13,10 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 #[OA\Tag(name: 'Authentication')]
-#[Route('/api/auth')]
 final class ProfileController extends AbstractController
 {
     #[OA\Get(
-        path: '/api/auth/profile',
+        path: '/api/v1/auth/profile',
         summary: 'Get current user profile',
         security: [['Bearer' => []]],
         tags: ['Authentication'],

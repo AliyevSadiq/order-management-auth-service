@@ -10,6 +10,7 @@ use App\Message\UserRegistered;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Messenger\Bridge\Amqp\Transport\AmqpStamp;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 final readonly class RegistrationService implements RegistrationServiceInterface
@@ -48,7 +49,8 @@ final readonly class RegistrationService implements RegistrationServiceInterface
                 email: $user->getEmail(),
                 firstName: $user->getFirstName(),
                 lastName: $user->getLastName(),
-            )
+            ),
+            [new AmqpStamp('auth.user_registered')]
         );
 
         return $user;

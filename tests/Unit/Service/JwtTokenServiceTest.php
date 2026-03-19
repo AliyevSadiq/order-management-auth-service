@@ -59,7 +59,7 @@ final class JwtTokenServiceTest extends TestCase
 
         self::assertSame($user->getId(), $refreshToken->getUserId());
         self::assertNotEmpty($refreshToken->getToken());
-        self::assertSame(128, strlen($refreshToken->getToken())); // bin2hex(64 bytes) = 128 chars
+        self::assertSame(128, strlen($refreshToken->getToken())); 
         self::assertGreaterThan(new \DateTimeImmutable(), $refreshToken->getExpiresAt());
     }
 

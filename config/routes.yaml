@@ -1,6 +1,6 @@
 api_auth:
     resource: routes/api.yaml
-    prefix: /api/auth
+    prefix: /api/v1/auth
 
 metrics:
     path: /metrics

@@ -8,9 +8,12 @@ framework:
                 options:
                     exchange:
                         name: messages
-                        type: fanout
+                        type: topic
                     queues:
-                        auth_messages: ~
+                        auth_messages:
+                            binding_keys:
+                                - 'auth.user_registered'
+                                - 'auth.user_logged_in'
                 retry_strategy:
                     max_retries: 3
                     delay: 1000

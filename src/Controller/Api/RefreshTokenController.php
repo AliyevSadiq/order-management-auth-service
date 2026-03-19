@@ -11,7 +11,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[OA\Tag(name: 'Authentication')]
-#[Route('/api/auth')]
 final class RefreshTokenController extends AbstractController
 {
     public function __construct(
@@ -20,7 +19,7 @@ final class RefreshTokenController extends AbstractController
     }
 
     #[OA\Post(
-        path: '/api/auth/refresh',
+        path: '/api/v1/auth/refresh',
         summary: 'Refresh JWT token using refresh token',
         requestBody: new OA\RequestBody(
             required: true,

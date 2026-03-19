@@ -19,14 +19,24 @@ security:
             security: false
 
         login:
-            pattern: ^/api/auth/login
+            pattern: ^/api/v1/auth/login
             stateless: true
             json_login:
-                check_path: /api/auth/login
+                check_path: /api/v1/auth/login
                 username_path: email
                 password_path: password
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
+        register:
+            pattern: ^/api/v1/auth/register
+            stateless: true
+            security: false
+
+        refresh:
+            pattern: ^/api/v1/auth/refresh
+            stateless: true
+            security: false
 
         api:
             pattern: ^/api
@@ -35,9 +45,9 @@ security:
 
     access_control:
         - { path: ^/api/doc, roles: PUBLIC_ACCESS }
-        - { path: ^/api/auth/register, roles: PUBLIC_ACCESS }
-        - { path: ^/api/auth/login, roles: PUBLIC_ACCESS }
-        - { path: ^/api/auth/refresh, roles: PUBLIC_ACCESS }
-        - { path: ^/api/auth/profile, roles: ROLE_USER }
-        - { path: ^/api/auth/logout, roles: ROLE_USER }
+        - { path: ^/api/v1/auth/register, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/auth/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/auth/refresh, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/auth/profile, roles: ROLE_USER }
+        - { path: ^/api/v1/auth/logout, roles: ROLE_USER }
         - { path: ^/api, roles: ROLE_USER }

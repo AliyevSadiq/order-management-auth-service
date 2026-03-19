@@ -11,7 +11,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[OA\Tag(name: 'Authentication')]
-#[Route('/api/auth')]
 final class LogoutController extends AbstractController
 {
     public function __construct(
@@ -20,7 +19,7 @@ final class LogoutController extends AbstractController
     }
 
     #[OA\Post(
-        path: '/api/auth/logout',
+        path: '/api/v1/auth/logout',
         summary: 'Logout user and invalidate refresh token',
         security: [['Bearer' => []]],
         requestBody: new OA\RequestBody(

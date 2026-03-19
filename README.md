@@ -4,7 +4,7 @@ A production-ready JWT authentication microservice built with **Symfony 7.0** an
 
 ## Architecture Overview
 
-![Auth Service Architecture](docs/auth-service-architecture.png)
+![Auth Service Architecture](docs/auth-service-animated.svg)
 
 ## Table of Contents
 
@@ -30,6 +30,7 @@ A production-ready JWT authentication microservice built with **Symfony 7.0** an
   - [Monitoring \& Observability](#monitoring--observability)
     - [Prometheus Metrics (`GET /metrics`)](#prometheus-metrics-get-metrics)
     - [Health Check (`GET /health/auth`)](#health-check-get-healthauth)
+    - [Distributed Tracing](#distributed-tracing)
     - [Error Tracking](#error-tracking)
   - [Testing](#testing)
   - [Docker Services](#docker-services)
@@ -45,6 +46,7 @@ A production-ready JWT authentication microservice built with **Symfony 7.0** an
 - Sentry error tracking
 - OpenAPI documentation (NelmioApiDoc)
 - CORS support
+- Distributed tracing via Jaeger (Zipkin format)
 - Interface-driven service layer (contract-based design)
 
 ## Tech Stack
@@ -304,7 +306,9 @@ The service publishes domain events to RabbitMQ for consumption by other microse
 | `UserRegistered`  | Successful registration | userId, email, firstName, lastName          |
 | `UserLoggedIn`    | Successful login       | userId, email, ipAddress, userAgent          |
 
-**Consumer**: The notification-service subscribes to both events via the same `messages` fanout exchange (queue: `notification_messages`). Order-service and product-service do **not** consume auth events.
+Messages are published to the `messages` topic exchange using routing keys `auth.user_registered` and `auth.user_logged_in` (set via `AmqpStamp` on dispatch).
+
+**Consumer**: The notification-service subscribes to both events via the `messages` topic exchange (queue: `notification_messages`). Order-service and product-service do **not** consume auth events.
 
 ## Monitoring & Observability
 
@@ -325,6 +329,10 @@ Returns connectivity status for:
 - PostgreSQL database
 - RabbitMQ message broker
 - JWT key files
+
+### Distributed Tracing
+
+The service integrates with Jaeger for distributed tracing via Zipkin format. Key components: `TracingService`, `TracingListener`, `TracingFinishListener`, `TracingResponseListener`, and `TraceContextProcessor`.
 
 ### Error Tracking
 

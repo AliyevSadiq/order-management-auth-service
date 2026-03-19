@@ -60,6 +60,27 @@ services:
             $jwtSecretKey: '%env(resolve:JWT_SECRET_KEY)%'
             $jwtPublicKey: '%env(resolve:JWT_PUBLIC_KEY)%'
 
+    App\Tracing\TracingService:
+        arguments:
+            $jaegerEndpoint: '%env(JAEGER_ENDPOINT)%'
+            $serviceName: '%env(SERVICE_NAME)%'
+
+    App\EventListener\TracingListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest, priority: 100 }
+
+    App\EventListener\TracingFinishListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.terminate, method: onKernelTerminate }
+
+    App\EventListener\TracingResponseListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.response, method: onKernelResponse }
+
+    App\Logger\TraceContextProcessor:
+        tags:
+            - { name: monolog.processor }
+
     App\Logger\ServiceNameProcessor:
         tags:
             - { name: monolog.processor }
